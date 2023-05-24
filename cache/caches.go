@@ -56,11 +56,11 @@ type GuildCache interface {
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
-func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.ID], unavailableGuilds set.Set[snowflake.ID]) GuildCache {
+func NewGuildCache(cache Cache[discord.Guild]) GuildCache {
 	return &guildCacheImpl{
 		cache:             cache,
-		unreadyGuilds:     unreadyGuilds,
-		unavailableGuilds: unavailableGuilds,
+		unreadyGuilds:     set.New[snowflake.ID](),
+		unavailableGuilds: set.New[snowflake.ID](),
 	}
 }
 
