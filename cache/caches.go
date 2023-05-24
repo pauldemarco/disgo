@@ -9,6 +9,31 @@ import (
 	"github.com/disgoorg/disgo/internal/set"
 )
 
+type SessionCache interface {
+	Session() (discord.Session, bool)
+	SetSession(session discord.Session)
+}
+
+func NewSessionCache(cache Cache[discord.Session]) SessionCache {
+	return &sessionCacheImpl{
+		cache: cache,
+		id:    snowflake.MustParse("0"), // only manage one session. Cache needs an ID.
+	}
+}
+
+type sessionCacheImpl struct {
+	cache Cache[discord.Session]
+	id    snowflake.ID
+}
+
+func (c *sessionCacheImpl) Session() (discord.Session, bool) {
+	return c.cache.Get(c.id)
+}
+
+func (c *sessionCacheImpl) SetSession(session discord.Session) {
+	c.cache.Put(c.id, session)
+}
+
 type SelfUserCache interface {
 	SelfUser() (discord.OAuth2User, bool)
 	SetSelfUser(selfUser discord.OAuth2User)
@@ -673,6 +698,7 @@ func (c *stickerCacheImpl) RemoveStickersByGuildID(guildID snowflake.ID) {
 
 // Caches combines all different entity caches into one with some utility methods.
 type Caches interface {
+	SessionCache
 	SelfUserCache
 	GuildCache
 	ChannelCache
@@ -757,6 +783,7 @@ func New(opts ...ConfigOpt) Caches {
 
 	return &cachesImpl{
 		config:                   *config,
+		SessionCache:             config.SessionCache,
 		SelfUserCache:            config.SelfUserCache,
 		GuildCache:               config.GuildCache,
 		ChannelCache:             config.ChannelCache,
@@ -776,6 +803,7 @@ func New(opts ...ConfigOpt) Caches {
 type cachesImpl struct {
 	config Config
 
+	SessionCache
 	GuildCache
 	ChannelCache
 	StageInstanceCache

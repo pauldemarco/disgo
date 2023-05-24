@@ -72,6 +72,9 @@ type Gateway interface {
 	// This may be nil if the Gateway was never connected to Discord, was gracefully closed with websocket.CloseNormalClosure or websocket.CloseGoingAway.
 	SessionID() *string
 
+	// The Resume Gateway URL set in the Ready event.
+	ResumeGatewayURL() *string
+
 	// LastSequenceReceived returns the last sequence number that was received by the Gateway.
 	// This may be nil if the Gateway was never connected to Discord, was gracefully closed with websocket.CloseNormalClosure or websocket.CloseGoingAway.
 	LastSequenceReceived() *int

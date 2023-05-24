@@ -26,6 +26,9 @@ func DefaultConfig() *Config {
 type Config struct {
 	CacheFlags Flags
 
+	SessionCache       SessionCache
+	SessionCachePolicy Policy[discord.Session]
+
 	SelfUserCache SelfUserCache
 
 	GuildCache       GuildCache
@@ -73,6 +76,9 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.SessionCache == nil {
+		c.SessionCache = NewSessionCache(NewCache[discord.Session](c.CacheFlags, FlagGuilds, c.SessionCachePolicy))
+	}
 	if c.SelfUserCache == nil {
 		c.SelfUserCache = NewSelfUserCache()
 	}
@@ -118,6 +124,20 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithCaches(flags ...Flags) ConfigOpt {
 	return func(config *Config) {
 		config.CacheFlags = config.CacheFlags.Add(flags...)
+	}
+}
+
+// WithSessionCachePolicy sets the Policy[discord.Session] of the Config.
+func WithSessionCachePolicy(policy Policy[discord.Session]) ConfigOpt {
+	return func(config *Config) {
+		config.SessionCachePolicy = policy
+	}
+}
+
+// WithSessionCache sets the SessionCache of the Config.
+func WithSessionCache(sessionCache SessionCache) ConfigOpt {
+	return func(config *Config) {
+		config.SessionCache = sessionCache
 	}
 }
 

@@ -62,6 +62,10 @@ func (g *gatewayImpl) SessionID() *string {
 	return g.config.SessionID
 }
 
+func (g *gatewayImpl) ResumeGatewayURL() *string {
+	return g.config.ResumeURL
+}
+
 func (g *gatewayImpl) LastSequenceReceived() *int {
 	return g.config.LastSequenceReceived
 }

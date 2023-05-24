@@ -2,11 +2,18 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
 func gatewayHandlerRaw(client bot.Client, sequenceNumber int, shardID int, event gateway.EventRaw) {
+	client.Caches().SetSession(discord.Session{
+		SessionID:        *client.Gateway().SessionID(),
+		ResumeGatewayURL: *client.Gateway().ResumeGatewayURL(),
+		SequenceID:       sequenceNumber,
+	})
+
 	client.EventManager().DispatchEvent(&events.Raw{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		EventRaw:     event,
