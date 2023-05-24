@@ -238,6 +238,11 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
 	}
 
+	if config.Caches == nil {
+		config.Caches = cache.New(config.CacheConfigOpts...)
+	}
+	client.caches = config.Caches
+
 	if config.Rest == nil {
 		config.Rest = rest.New(config.RestClient)
 	}
@@ -270,6 +275,14 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 				config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.GatewayConfigOpts...)
+
+		if s, exists := config.Caches.Session(); exists {
+			config.GatewayConfigOpts = append(config.GatewayConfigOpts,
+				gateway.WithSessionID(s.SessionID),
+				gateway.WithURL(s.ResumeGatewayURL),
+				gateway.WithSequence(s.SequenceID),
+			)
+		}
 
 		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), nil, config.GatewayConfigOpts...)
 	}
@@ -323,11 +336,6 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.MemberChunkingManager = NewMemberChunkingManager(client, config.Logger, config.MemberChunkingFilter)
 	}
 	client.memberChunkingManager = config.MemberChunkingManager
-
-	if config.Caches == nil {
-		config.Caches = cache.New(config.CacheConfigOpts...)
-	}
-	client.caches = config.Caches
 
 	return client, nil
 }
