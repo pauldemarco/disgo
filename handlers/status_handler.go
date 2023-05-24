@@ -8,11 +8,13 @@ import (
 )
 
 func gatewayHandlerRaw(client bot.Client, sequenceNumber int, shardID int, event gateway.EventRaw) {
-	client.Caches().SetSession(discord.Session{
-		SessionID:        *client.Gateway().SessionID(),
-		ResumeGatewayURL: *client.Gateway().ResumeGatewayURL(),
-		SequenceID:       sequenceNumber,
-	})
+	if client.Gateway().SessionID() != nil && client.Gateway().ResumeGatewayURL() != nil {
+		client.Caches().SetSession(discord.Session{
+			SessionID:        *client.Gateway().SessionID(),
+			ResumeGatewayURL: *client.Gateway().ResumeGatewayURL(),
+			SequenceID:       sequenceNumber,
+		})
+	}
 
 	client.EventManager().DispatchEvent(&events.Raw{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
