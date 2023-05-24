@@ -279,7 +279,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		if s, exists := config.Caches.Session(); exists {
 			config.GatewayConfigOpts = append(config.GatewayConfigOpts,
 				gateway.WithSessionID(s.SessionID),
-				gateway.WithURL(s.ResumeGatewayURL),
+				gateway.WithResumeURL(s.ResumeGatewayURL),
 				gateway.WithSequence(s.SequenceID),
 			)
 		}

@@ -170,6 +170,13 @@ func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
 	}
 }
 
+// WithResumeURL sets the resume URL for resuming a session with Discord.
+func WithResumeURL(url string) ConfigOpt {
+	return func(config *Config) {
+		config.ResumeURL = &url
+	}
+}
+
 // WithEnableResumeURL enables/disables usage of resume URLs sent by Discord.
 func WithEnableResumeURL(enableResumeURL bool) ConfigOpt {
 	return func(config *Config) {
